@@ -1,195 +1,536 @@
-const gameData = {
-    easy: [
-        {
-            images: ["images/cute1.jpg", "images/cute2.jpg", "images/cute3.jpg", "images/cute4.jpg"],
-            answer: "CUTE",
-            hint: "adorable, me, celine"
-        },
-        {
-            images: ["images/croc1.jpg", "images/croc2.jpg", "images/croc3.jpg", "images/croc4.jpg"],
-            answer: "CROCS",
-            hint: "marami sa senate"
-        },
-        {
-            images: ["images/apple1.jpg", "images/apple2.jpg", "images/apple3.jpg", "images/apple4.jpg"],
-            answer: "APPLE",
-            hint: "crim student: ate pa print ate: a4? crim student: apple"
-        }
-    ],
-    hard: [
-        {
-            images: ["images/jojo1.jpg", "images/jojo2.jpg", "images/jojo3.jpg", "images/jojo4.jpg"],
-            answer: "JOJO",
-            hint: "name nila lahat"
-        },
-        {
-            images: ["images/corrupt1.jpg", "images/corrupt2.jpg", "images/corrupt3.jpg", "images/corrupt4.jpg"],
-            answer: "CORRUPT",
-            hint: "government"
-        },
-        {
-            images: ["images/trapo1.jpg", "images/trapo2.jpg", "images/trapo3.jpg", "images/trapo4.jpg"],
-            answer: "TRAPO",
-            hint: "mar"
-        }
-    ]
-};
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Comic Neue', 'Arial Rounded MT Bold', cursive;
+}
 
-document.addEventListener('DOMContentLoaded', function () {
-    const landingPage = document.getElementById('landing-page');
-    const usernameContainer = document.getElementById('username-container');
-    const gameContainer = document.getElementById('game-container');
-    const resultsContainer = document.getElementById('results-container');
-    const playBtn = document.getElementById('play-btn');
-    const usernameForm = document.getElementById('username-form');
-    const usernameInput = document.getElementById('username-input');
-    const welcomeMessage = document.getElementById('welcome-message');
-    const picsContainer = document.getElementById('pics-container');
-    const letterBoxes = document.getElementById('letter-boxes');
-    const answerInput = document.getElementById('answer-input');
-    const submitAnswerBtn = document.getElementById('submit-answer');
-    const hintBtn = document.getElementById('hint-btn');
-    const currentLevelEl = document.getElementById('current-level');
-    const currentScoreEl = document.getElementById('current-score');
-    const progressBar = document.getElementById('progress-bar');
-    const resultScore = document.getElementById('result-score');
-    const resultStars = document.getElementById('result-stars');
-    const playAgainBtn = document.getElementById('play-again-btn');
-    const timerEl = document.getElementById('timer');
+body {
+    background-color: #f9eae8;
+    color: #2d4b9a;
+    overflow-x: hidden;
+    position: relative;
+}
 
-    let currentLevel = 1;
-    let currentRound = {};
-    let score = 0;
-    let username = '';
-    let timerInterval = null;
-    let timeLeft = 30;
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+}
 
-    function init() {
-        const storedUsername = localStorage.getItem('fourPicOneWordUsername');
-        if (storedUsername) {
-            username = storedUsername;
-        }
+.game-title {
+    margin: 60px 0 30px 0;
+    position: relative;
+}
 
-        landingPage.style.display = 'block';
-        usernameContainer.style.display = 'none';
-        gameContainer.style.display = 'none';
-        resultsContainer.style.display = 'none';
+.game-title h1 {
+    font-size: 5.5rem;
+    color: #2d4b9a;
+    text-shadow: 4px 4px 0 rgba(45, 75, 154, 0.3);
+    position: relative;
+    z-index: 2;
+    letter-spacing: 2px;
+    font-weight: 900;
+    line-height: 1.1;
+}
 
-        playBtn.addEventListener('click', function () {
-            landingPage.style.display = 'none';
-            usernameContainer.style.display = 'block';
-            usernameInput.focus();
-        });
+.game-subtitle {
+    font-size: 2rem;
+    color: #a387c8;
+    margin-bottom: 60px;
+    position: relative;
+    font-weight: bold;
+}
 
-        usernameForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const inputValue = usernameInput.value.trim();
-            if (/^[a-zA-Z0-9]+$/.test(inputValue)) {
-                username = inputValue;
-                localStorage.setItem('fourPicOneWordUsername', username);
-                startGame();
-            } else {
-                alert('Username should contain only letters and numbers.');
-            }
-        });
+.game-description {
+    max-width: 500px;
+    margin: 0 auto 30px;
+    padding: 15px;
+    background: rgba(255,255,255,0.7);
+    border-radius: 15px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #2d4b9a;
+}
 
-        submitAnswerBtn.addEventListener('click', checkAnswer);
-        answerInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkAnswer();
-        });
-        playAgainBtn.addEventListener('click', () => {
-            resultsContainer.style.display = 'none';
-            startGame();
-        });
-        hintBtn.addEventListener('click', showHint);
+.game-description p {
+    margin-bottom: 10px;
+}
+
+.decoration {
+    position: absolute;
+    z-index: 1;
+}
+
+.decoration.star1 {
+    top: -20px;
+    right: 20%;
+    color: #e94e97;
+    font-size: 40px;
+}
+
+.decoration.star2 {
+    bottom: -20px;
+    left: 25%;
+    color: #a387c8;
+    font-size: 30px;
+}
+
+.decoration.heart {
+    top: 20px;
+    left: 20%;
+    color: #e94e97;
+    font-size: 30px;
+}
+
+.decoration.wave {
+    bottom: 20px;
+    right: 30%;
+    color: #74c7e5;
+    font-size: 40px;
+}
+
+.floating {
+    animation: floating 3s ease-in-out infinite;
+}
+
+.floating-delay {
+    animation: floating 3s ease-in-out 1.5s infinite;
+}
+
+@keyframes floating {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(0, -10px) rotate(5deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.play-btn {
+    background: linear-gradient(to right, #2d4b9a, #5273c8);
+    color: white;
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 18px 80px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 30px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 0 #1a3575, 0 15px 20px rgba(45, 75, 154, 0.3);
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.play-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 13px 0 #1a3575, 0 18px 20px rgba(45, 75, 154, 0.3);
+}
+
+.play-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 5px 0 #1a3575, 0 8px 15px rgba(45, 75, 154, 0.3);
+}
+
+.username-container {
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.username-container h2 {
+    margin-bottom: 30px;
+    color: #2d4b9a;
+    position: relative;
+    font-size: 2.2rem;
+}
+
+.username-form input {
+    width: 100%;
+    padding: 15px;
+    border: 3px solid #d1dfff;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    font-family: 'Comic Neue', cursive;
+}
+
+.username-form input:focus {
+    outline: none;
+    border-color: #2d4b9a;
+    box-shadow: 0 0 10px rgba(45, 75, 154, 0.1);
+}
+
+.username-form button {
+    background: linear-gradient(to right, #e94e97, #ff7eb6);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 0 #d33a80, 0 10px 15px rgba(233, 78, 151, 0.3);
+    font-family: 'Comic Neue', cursive;
+    letter-spacing: 1px;
+}
+
+.username-form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 #d33a80, 0 12px 17px rgba(233, 78, 151, 0.3);
+}
+
+.username-form button:active {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 #d33a80, 0 6px 10px rgba(233, 78, 151, 0.3);
+}
+
+.game-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-message {
+    font-size: 1.8rem;
+    color: #e94e97;
+    margin-bottom: 30px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(233, 78, 151, 0.2);
+}
+
+.pics-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.pic-box {
+    height: 150px;
+    background-color: #f0f4ff;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 3px solid #d1dfff;
+}
+
+.pic-box:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #2d4b9a;
+}
+
+.pic-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.letter-boxes {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.letter-box {
+    width: 45px;
+    height: 45px;
+    background-color: #f0f4ff;
+    border: 3px solid #d1dfff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2d4b9a;
+    text-transform: uppercase;
+}
+
+.answer-container {
+    margin-top: 20px;
+    position: relative;
+}
+
+.answer-input {
+    width: 100%;
+    padding: 15px;
+    border: 3px solid #d1dfff;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    font-family: 'Comic Neue', cursive;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: #2d4b9a;
+    box-shadow: 0 0 10px rgba(45, 75, 154, 0.1);
+}
+
+.submit-answer {
+    background: linear-gradient(to right, #2d4b9a, #5273c8);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 0 #1a3575, 0 10px 15px rgba(45, 75, 154, 0.3);
+    font-family: 'Comic Neue', cursive;
+    letter-spacing: 1px;
+}
+
+.submit-answer:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 #1a3575, 0 12px 17px rgba(45, 75, 154, 0.3);
+}
+
+.submit-answer:active {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 #1a3575, 0 6px 10px rgba(45, 75, 154, 0.3);
+}
+
+.hint-btn {
+    background-color: transparent;
+    color: #a387c8;
+    border: 3px solid #a387c8;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+    font-family: 'Comic Neue', cursive;
+}
+
+.hint-btn:hover {
+    background-color: #a387c8;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.hint-btn:active {
+    transform: translateY(1px);
+}
+
+.timer-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+    color: #a387c8;
+    font-weight: bold;
+}
+
+.timer-icon {
+    margin-right: 5px;
+    font-size: 1.5rem;
+}
+
+.progress-container {
+    margin-top: 30px;
+    text-align: left;
+}
+
+.level-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.level-text {
+    font-weight: bold;
+    color: #2d4b9a;
+}
+
+.score-text {
+    color: #e94e97;
+    font-weight: bold;
+}
+
+.progress-bar {
+    height: 15px;
+    background-color: #d1dfff;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+    position: relative;
+    border: 2px solid #a387c8;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(to right, #e94e97, #ff7eb6);
+    border-radius: 8px;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.results-container {
+    max-width: 600px;
+    margin: 100px auto;
+    padding: 40px;
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    display: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.results-container h2 {
+    color: #2d4b9a;
+    margin-bottom: 20px;
+    position: relative;
+    display: inline-block;
+    font-size: 2.5rem;
+}
+
+.result-message {
+    font-size: 1.5rem;
+    color: #a387c8;
+    margin-bottom: 20px;
+}
+
+.result-score {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #e94e97;
+    margin: 30px 0;
+    text-shadow: 3px 3px 0 rgba(233, 78, 151, 0.2);
+}
+
+.result-stars {
+    font-size: 2.5rem;
+    color: gold;
+    margin: 20px 0;
+    letter-spacing: 10px;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.play-again-btn {
+    background: linear-gradient(to right, #2d4b9a, #5273c8);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 15px 50px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 30px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 0 #1a3575, 0 10px 15px rgba(45, 75, 154, 0.3);
+    font-family: 'Comic Neue', cursive;
+    letter-spacing: 1px;
+}
+
+.play-again-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 0 #1a3575, 0 12px 17px rgba(45, 75, 154, 0.3);
+}
+
+.play-again-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 #1a3575, 0 6px 10px rgba(45, 75, 154, 0.3);
+}
+
+.title-word {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .game-title h1 {
+        font-size: 4rem;
     }
-
-    function startGame() {
-        currentLevel = 1;
-        score = 0;
-        usernameContainer.style.display = 'none';
-        gameContainer.style.display = 'block';
-        welcomeMessage.textContent = `Welcome, ${username}!`;
-        loadRound();
+    
+    .game-subtitle {
+        font-size: 1.8rem;
     }
-
-    function loadRound() {
-        const isEasyRound = currentLevel <= 3;
-        const roundIndex = isEasyRound ? currentLevel - 1 : currentLevel - 4;
-        const roundData = isEasyRound ? gameData.easy[roundIndex] : gameData.hard[roundIndex];
-
-        currentRound = roundData;
-        answerInput.value = '';
-        letterBoxes.innerHTML = '';
-
-        currentRound.images.forEach((src, index) => {
-            const box = document.getElementById(`pic-box-${index + 1}`);
-            box.style.backgroundImage = `url(${src})`;
-        });
-
-        for (let i = 0; i < roundData.answer.length; i++) {
-            const span = document.createElement('span');
-            span.className = 'letter-box';
-            span.textContent = '_';
-            letterBoxes.appendChild(span);
-        }
-
-        currentLevelEl.textContent = currentLevel;
-        currentScoreEl.textContent = score;
-        progressBar.style.width = `${(currentLevel - 1) / 6 * 100}%`;
-
-        startTimer();
+    
+    .game-description {
+        font-size: 1rem;
+        padding: 10px;
+        margin-bottom: 20px;
     }
-
-    function startTimer() {
-        clearInterval(timerInterval);
-        timeLeft = 30;
-        updateTimer();
-
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimer();
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                alert('Time\'s up! Try again!');
-                endGame();
-            }
-        }, 1000);
+    
+    .pics-container {
+        grid-template-columns: repeat(2, 1fr);
     }
-
-    function updateTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    
+    .pic-box {
+        height: 120px;
     }
-
-    function checkAnswer() {
-        const userAnswer = answerInput.value.trim().toUpperCase();
-        if (userAnswer === currentRound.answer.toUpperCase()) {
-            score++;
-            if (currentLevel < 6) {
-                currentLevel++;
-                loadRound();
-            } else {
-                endGame();
-            }
-        } else {
-            alert('Wrong answer. Try again!');
-        }
+    
+    .letter-box {
+        width: 35px;
+        height: 35px;
+        font-size: 1.2rem;
     }
+}
 
-    function showHint() {
-        alert(currentRound.hint);
+@media (max-width: 480px) {
+    .game-title h1 {
+        font-size: 3rem;
     }
-
-    function endGame() {
-        clearInterval(timerInterval);
-        gameContainer.style.display = 'none';
-        resultsContainer.style.display = 'block';
-        resultScore.textContent = `${score}/6`;
-        resultStars.textContent = '★'.repeat(score >= 5 ? 3 : score >= 3 ? 2 : 1);
+    
+    .game-subtitle {
+        font-size: 1.5rem;
     }
-
-    init();
-});
+    
+    .play-btn {
+        font-size: 1.5rem;
+        padding: 12px 40px;
+    }
+    
+    .pics-container {
+        gap: 10px;
+    }
+    
+    .pic-box {
+        height: 100px;
+    }
+    
+    .letter-box {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+} can you fic the main page where you dont neexd to scroll make it fix into just 1920 x 1820
